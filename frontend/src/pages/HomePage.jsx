@@ -14,11 +14,9 @@ export const HomePage = () => {
         const fetchArticles = async () => {
             if(articles?.length) return
             try {
-                const pp = await getArticles();
-                console.log(pp)
+                await getArticles();
                 setError(false);
             } catch (err) {
-                console.log(err)
                 setError(true);
             } finally {
                 setLoading(false);

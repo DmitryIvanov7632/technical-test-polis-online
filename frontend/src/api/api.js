@@ -1,4 +1,6 @@
+import axios from "axios";
 import { useArticleStore, useCommentStore } from '../store.js'
+
 import {
     ArticleSchema,
     ArticleListSchema,
@@ -15,45 +17,37 @@ const api = axios.create({
 });
 
 export const getArticles = async () => {
-    const store = useArticleStore.getState();
     const response = await api.get(`/`);
 
-    const articles = response.data;
-    store.setArticles(articles);
-
-    return ArticleListSchema.parse(articles);
+    const parsed = ArticleListSchema.parse(response.data);
+    useArticleStore.getState().setArticles(parsed);
 };
 
 export const getArticle = async (id) => {
     const response = await api.get(`/${id}`);
-    const article = response.data;
+    const parsed = ArticleSchema.parse(response.data);
 
-    useArticleStore.getState().addArticle(article);
-    useCommentStore.getState().addComment(article.id, article.comments);
-    return ArticleSchema.parse(response.data);
+    useArticleStore.getState().addArticle(parsed);
+    useCommentStore.getState().addComment(parsed.id, parsed.comments);
 };
 
 export const createArticle = async (data) => {
     const response = await api.post(`/`, data);
-    const article = response.data;
+    const parsed = ArticleSchema.parse(response.data);
 
-    useArticleStore.getState().addArticle(article);
-
-    return ArticleSchema.parse(article);
+    useArticleStore.getState().addArticle(parsed);
 };
 
 export const createComment = async (articleId, data) => {
     const response = await api.post(`/${articleId}/comments`, data);
-    const comment = response.data;
+    const parsed = CommentSchema.parse(response.data);
 
-    useCommentStore.getState().addComment(articleId, comment);
-    return CommentSchema.parse(comment);
+    useCommentStore.getState().addComment(articleId, parsed);
 };
 
 export const getComments = async (articleId) => {
     const response = await api.get(`/${articleId}/comments`);
-    const comments = response.data;
+    const parsed = CommentListSchema.parse(response.data);
 
-    useCommentStore.getState().setCommentsByArticle(articleId, comments);
-    return CommentListSchema.parse(comments);
+    useCommentStore.getState().setCommentsByArticle(articleId, parsed);
 }
